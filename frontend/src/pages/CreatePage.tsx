@@ -7,10 +7,11 @@ import {
   Input,
   Button,
   FormLabel,
-  FormControl
+  FormControl,
+  useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { useProductStore } from '../store/product';
+import { useProductStore } from "../store/product";
 
 type NewProduct = {
   name: string;
@@ -19,6 +20,7 @@ type NewProduct = {
 };
 
 const CreatePage = () => {
+  const toast = useToast();
   const [newProduct, setNewProduct] = useState<NewProduct>({
     name: "",
     price: "",
@@ -28,10 +30,26 @@ const CreatePage = () => {
   const { createProduct } = useProductStore();
 
   const handleAddProduct = async () => {
-    // Adjust the type below if your store returns something different
-    const { success, message }: { success: boolean; message: string } = await createProduct(newProduct);
-    console.log("success" + success);
-    console.log("message" + message);
+    const { success, message }: { success: boolean; message: string } =
+      await createProduct(newProduct);
+    if (!success) {
+      toast({
+        title: "Error",
+        description: message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Product added successfully!",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      setNewProduct({ name: "", price: "", image: "" }); // Reset form after successful addition
+    }
   };
 
   return (
